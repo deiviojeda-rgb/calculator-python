@@ -2,15 +2,16 @@ import tkinter
 import math
 
 button_values = [
-    ["AC", "+/-", "%", "÷"], 
-    ["7", "8", "9", "×"], 
-    ["4", "5", "6", "-"],
-    ["1", "2", "3", "+"],
-    ["0", ".", "√", "="]
+    ["sin", "AC", "+/-", "%", "÷"], 
+    ["cos", "7", "8", "9", "×"], 
+    ["tan", "4", "5", "6", "-"],
+    ["π", "1", "2", "3", "+"],
+    ["e", "0", ".", "√", "="],
 ]
 
 right_symbols = ["÷", "×", "-", "+", "="]
-top_symbols = ["AC", "+/-", "%", "√"]
+top_symbols = ["AC", "+/-", "%"]
+sci_symbols = ["sin", "cos", "tan", "π", "√", "e"]
 
 row_count = len(button_values) #5
 column_count = len(button_values[0]) #4
@@ -67,7 +68,7 @@ def remove_zero_decimal(num):
     return str(num)
 
 def button_clicked(value):
-    global right_symbols, top_symbols, label, A, B, operator
+    global right_symbols, top_symbols, label, sci_symbols, A, B, operator
 
     if value in right_symbols:
         if value == "=":
@@ -108,13 +109,38 @@ def button_clicked(value):
             result = float(label["text"]) / 100
             label["text"] = remove_zero_decimal(result)
 
-        elif value == "√":
+    elif value in sci_symbols:
+        if value == "√":
             num = float(label["text"])
-            if num < 0:
-                label["text"] = "Error"
+            label["text"] = "Error" if num < 0 else remove_zero_decimal(num ** 0.5)
+
+        elif value == "π":
+            label["text"] = str(round(math.pi, 10))
+
+        elif value == "sin":
+            num = float(label["text"])
+            label["text"] = remove_zero_decimal(math.sin(math.radians(num)))
+
+        elif value == "cos":
+            num = float(label["text"])
+            result = math.cos(math.radians(num))
+            if abs(result) < 1e-10:
+                result = 0
+            label["text"] = remove_zero_decimal(result)
+
+        elif value == "tan":
+            num = float(label["text"])
+            c = math.cos(math.radians(num))
+            if math.isclose(c, 0, abs_tol=1e-10):
+                label["text"] = "Error"                      # 90°, 270°, ...
             else:
-                result =  float(label["text"]) ** 0.5
-                label["text"] = remove_zero_decimal(result)            
+                result = math.tan(math.radians(num))
+                if abs(result) < 1e-10:
+                    result = 0                               # 0°, 180°, 360°, ...
+                label["text"] = remove_zero_decimal(result)
+
+        elif value == "e":
+                    label["text"] = str(round(math.e, 10))          
         
     else: #digits or .
         if value == ".":
